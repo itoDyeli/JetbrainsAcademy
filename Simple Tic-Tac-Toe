@@ -1,0 +1,79 @@
+def print_grid(rows, count):
+    print('---------')
+    print('|', *rows[0], '|')
+    print('|', *rows[1], '|')
+    print('|', *rows[2], '|')
+    print('---------')
+    if count == 0 or count % 2 == 0:
+        player = 'X'
+    else:
+        player = 'O'
+    return player
+
+def get_positions(cells, rows):
+    if rows == None:
+        rows = [(cells[i:i + 3]) for i in range(0, len(cells), 3)]  # check rows
+    col1 = [el[0] for el in rows]
+    col2 = [el[1] for el in rows]
+    col3 = [el[2] for el in rows]
+    cols = [''.join(col1), ''.join(col2), ''.join(col3)]  # check columns
+    diag1 = rows[0][0] + rows[1][1] + rows[2][2]
+    diag2 = rows[0][2] + rows[1][1] + rows[2][0]
+    diag = [diag1, diag2]  # check diagonals
+    return rows, cols, diag
+
+
+def get_user_cells(rows, player):
+    user_cord = input('Enter the coordinates: ').split()
+    if user_cord[0].isdigit() and user_cord[1].isdigit():
+        if int(user_cord[0]) in [1, 2, 3] and int(user_cord[1]) in [1, 2, 3]:
+            usr_row = int(user_cord[0]) - 1
+            usr_column = int(user_cord[1]) - 1
+            tmp_row = rows[usr_row][:usr_column] + ' ' + rows[usr_row][usr_column+1:]
+            if rows[usr_row] == tmp_row:
+                rows[usr_row] = rows[usr_row][:usr_column] + player + rows[usr_row][usr_column + 1:]
+                return rows
+            else:
+                print('This cell is occupied! Choose another one!')
+        else:
+            print('Coordinates should be from 1 to 3!')
+    else:
+        print('You should enter numbers!')
+    get_user_cells(rows, player)
+
+
+def check_result(cells, rows, cols, diag):
+    x_wins = 'XXX' in rows or 'XXX' in cols or 'XXX' in diag  # check for 'XXX' in table
+    o_wins = 'OOO' in rows or 'OOO' in cols or 'OOO' in diag  # check for 'OOO' in table
+
+    cells = rows[0] + rows[1] + rows[2]  # Check if we still have empty cells
+    if ' ' in cells:
+        draw = False
+    else:
+        draw = True
+    if x_wins == True and o_wins == False:
+        print('X wins')
+    elif o_wins == True and x_wins == False:
+        print('O wins')
+    elif x_wins == False and o_wins == False and draw == True:
+        print('Draw')
+    elif x_wins == False and o_wins == False and draw == False:
+        return True
+    return False
+
+
+if __name__ == '__main__':
+    cells = '         '
+    res = True
+    rows = None
+    count = 0
+    rows, cols, diag = get_positions(cells, rows)
+    while res == True:
+        player = print_grid(rows, count)
+        rows, cols, diag = get_positions(cells, rows)
+        res = check_result(cells, rows, cols, diag)
+        if res == True:
+            r = get_user_cells(rows, player)
+        if res == False:
+            break
+        count += 1
